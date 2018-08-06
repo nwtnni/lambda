@@ -1,26 +1,22 @@
 module Context = struct
   type t = string list
 
-  module S = Set.Make (String)
-  open Lambda
-
   let from_lambda expr =
-    let rec variables = function
-    | Var x       -> S.singleton x
-    | Abs (x, e)  -> S.add x (variables e)
-    | App (e, e') -> S.union (variables e) (variables e')
-    in
-    S.fold List.cons (variables expr) []
+    Lambda.Set.fold List.cons (Lambda.free expr) []
 
-  let push = List.cons
+  let push name context =
+    name :: context
 
-  let find var =
-    let rec find' n = function
-    | []                  -> failwith "Unreachable by construction of context"
-    | v :: t when v = var -> n
-    | _ :: t              -> find' (n + 1) t
+  let name index context =
+    List.nth context index
+
+  let index name =
+    let rec index' n = function
+    | []                   -> failwith "Unreachable by construction of context"
+    | x :: t when x = name -> n
+    | _ :: t               -> index' (n + 1) t
     in
-    find' 0
+  index' 0
 end
 
 type term =
@@ -32,7 +28,7 @@ type t = term * Context.t
 
 let from_lambda expr =
   let rec from_lambda' context (expr: Lambda.t) = match expr with
-  | Var x       -> Var (Context.find x context)
+  | Var x       -> Var (Context.index x context)
   | Abs (x, e)  -> Abs (x, from_lambda' (Context.push x context) e)
   | App (e, e') -> App (from_lambda' context e, from_lambda' context e')
   in
