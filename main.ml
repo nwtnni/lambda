@@ -14,3 +14,14 @@ let branch = parse "λl t f. l t f"
 
 let conj = apply (parse "λf a b. a b f") [f]
 let disj = apply (parse "λt a b. a t b") [t]
+
+let pair = parse "λf s b. b f s"
+let first = apply (parse "λt p. p t") [t]
+let second = apply (parse "λf p. p f") [f]
+
+let zero = parse "λs z. z"
+let succ = parse "λn s z. s (n s z)"
+
+let rec church n = match n with
+| 0 -> zero
+| n -> apply succ [church (n - 1)]
