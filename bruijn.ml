@@ -9,11 +9,15 @@ module Context = struct
 
   let unique name context =
     let regex = Str.regexp (name ^ "'*$") in
-    context
+
+    let names = context
     |> List.filter (fun name -> Str.string_match regex name 0)
     |> List.sort (fun a b -> (String.length b) - (String.length a))
-    |> List.hd 
-    |> fun name -> name ^ "'"
+    in
+
+    match names with
+    | []        -> name
+    | name :: _ -> name ^ "'"
 
   let name index context =
     List.nth context index
@@ -24,7 +28,8 @@ module Context = struct
     | x :: t when x = name -> n
     | _ :: t               -> index' (n + 1) t
     in
-  index' 0
+    index' 0
+
 end
 
 type term =
@@ -54,10 +59,10 @@ let to_lambda (expr, context) =
 
 let show (expr, _) =
   let rec show' = function
-  | Var x                                     -> string_of_int x
-  | Abs (_, e)                                -> Printf.sprintf "λ. %s"     (show' e)
-  | App (Abs (_, _) as e, (Abs (_, _) as e')) -> Printf.sprintf "(%s) (%s)" (show' e) (show' e')
-  | App (Abs (_, _) as e, e')                 -> Printf.sprintf "(%s) %s"   (show' e) (show' e')
-  | App (e, (Abs (_, _) as e'))               -> Printf.sprintf "%s (%s)"   (show' e) (show' e')
-  | App (e, e')                               -> Printf.sprintf "%s %s"     (show' e) (show' e')
-  in show' expr
+  | Var x                       -> string_of_int x
+  | Abs (_, e)                  -> Printf.sprintf "λ. %s"     (show' e)
+  | App (e, (App (_, _) as e')) -> Printf.sprintf "%s (%s)"   (show' e) (show' e')
+  | App (e, (Abs (_, _) as e')) -> Printf.sprintf "%s (%s)"   (show' e) (show' e')
+  | App (e, e')                 -> Printf.sprintf "%s %s"     (show' e) (show' e')
+  in
+  show' expr
