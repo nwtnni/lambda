@@ -39,6 +39,12 @@ type term =
 
 type t = term * Context.t
 
+let rec eq a b = match a, b with
+| Var x, Var y                 -> x = y
+| Abs (_, e), Abs (_, e')      -> eq e e'
+| App (e, e'), App (e'', e''') -> eq e e'' && eq e' e'''
+| _                            -> false
+
 let from_lambda expr =
   let rec from_lambda' context (expr: Lambda.t) = match expr with
   | Var x       -> Var (Context.index x context)
@@ -83,3 +89,15 @@ let shift d =
 let substitute var expr =
   walk (fun x depth -> x = var + depth)
        (fun _ depth -> shift depth expr)
+
+let rec eval (expr, context) =
+  let rec eval' = function 
+  | App (Abs (x, e), e') -> shift (-1) (substitute 0 (shift 1 e') e)
+  | App (e, e') -> App (eval' e, eval' e')
+  | Abs (x, e) -> Abs (x, eval' e)
+  | e -> e
+  in
+  let expr' = eval' expr in
+  if eq expr expr'
+  then (expr', context)
+  else eval (expr', context)
