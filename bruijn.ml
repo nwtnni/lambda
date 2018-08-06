@@ -5,7 +5,7 @@ module Context = struct
   open Lambda
 
   let from_lambda expr =
-    let rec variables = function 
+    let rec variables = function
     | Var x       -> S.singleton x
     | Abs (x, e)  -> S.add x (variables e)
     | App (e, e') -> S.union (variables e) (variables e')
@@ -23,11 +23,18 @@ module Context = struct
     find' 0
 end
 
-module Term = struct
-  type t =
-  | Var of int
-  | Abs of string * t
-  | App of t * t
-end
+type term =
+| Var of int
+| Abs of string * term
+| App of term * term
 
-type t = Term.t * Context.t
+type t = term * Context.t
+
+let from_lambda expr =
+  let rec from_lambda' context (expr: Lambda.t) = match expr with
+  | Var x       -> Var (Context.find x context)
+  | Abs (x, e)  -> Abs (x, from_lambda' (Context.push x context) e)
+  | App (e, e') -> App (from_lambda' context e, from_lambda' context e')
+  in
+  let context = Context.from_lambda expr in
+  (from_lambda' context expr, context)
