@@ -61,7 +61,7 @@ let show (expr, _) =
   let rec show' = function
   | Var x                       -> string_of_int x
   | Abs (_, e)                  -> Printf.sprintf "λ. %s"     (show' e)
-  | App (e, (App (_, _) as e')) -> Printf.sprintf "%s (%s)"   (show' e) (show' e')
+  | App (e, (App (_, _) as e'))
   | App (e, (Abs (_, _) as e')) -> Printf.sprintf "%s (%s)"   (show' e) (show' e')
   | App (e, e')                 -> Printf.sprintf "%s %s"     (show' e) (show' e')
   in

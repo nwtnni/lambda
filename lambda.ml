@@ -14,6 +14,6 @@ let rec free = function
 let rec show = function
 | Var x                       -> x
 | Abs (x, e)                  -> Printf.sprintf "λ%s. %s" x (show e)
-| App (e, (App (_, _) as e')) -> Printf.sprintf "%s (%s)"   (show e) (show e')
+| App (e, (App (_, _) as e'))
 | App (e, (Abs (_, _) as e')) -> Printf.sprintf "%s (%s)"   (show e) (show e')
 | App (e, e')                 -> Printf.sprintf "%s %s"     (show e) (show e')
