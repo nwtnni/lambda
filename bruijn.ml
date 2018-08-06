@@ -67,11 +67,19 @@ let show (expr, _) =
   in
   show' expr
 
-let shift d =
-  let rec shift' c d = function
-  | Var x when x < c -> Var x
-  | Var x            -> Var (x + d)
-  | Abs (x, e)       -> Abs (x, shift' (c + 1) d e)
-  | App (e, e')      -> App (shift' c d e, shift' c d e')
+let walk cond map =
+  let rec walk' d = function 
+  | Var x when cond x d -> map x d
+  | Var x               -> Var x
+  | Abs (x, e)          -> Abs (x, walk' (d + 1) e)
+  | App (e, e')         -> App (walk' d e, walk' d e')
   in
-  shift' 0 d
+  walk' 0
+
+let shift d =
+  walk (fun x cutoff -> x >= cutoff)
+       (fun x _      -> Var (x + d))
+
+let substitute var expr =
+  walk (fun x depth -> x = var + depth)
+       (fun _ depth -> shift depth expr)
