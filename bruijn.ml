@@ -66,3 +66,12 @@ let show (expr, _) =
   | App (e, e')                 -> Printf.sprintf "%s %s"     (show' e) (show' e')
   in
   show' expr
+
+let shift d =
+  let rec shift' c d = function
+  | Var x when x < c -> Var x
+  | Var x            -> Var (x + d)
+  | Abs (x, e)       -> Abs (x, shift' (c + 1) d e)
+  | App (e, e')      -> App (shift' c d e, shift' c d e')
+  in
+  shift' 0 d
