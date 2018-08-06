@@ -51,3 +51,13 @@ let to_lambda (expr, context) =
   | App (e, e') -> App (to_lambda' context e, to_lambda' context e')
   in
   to_lambda' context expr
+
+let show (expr, _) =
+  let rec show' = function
+  | Var x                                     -> string_of_int x
+  | Abs (_, e)                                -> Printf.sprintf "λ. %s"     (show' e)
+  | App (Abs (_, _) as e, (Abs (_, _) as e')) -> Printf.sprintf "(%s) (%s)" (show' e) (show' e')
+  | App (Abs (_, _) as e, e')                 -> Printf.sprintf "(%s) %s"   (show' e) (show' e')
+  | App (e, (Abs (_, _) as e'))               -> Printf.sprintf "%s (%s)"   (show' e) (show' e')
+  | App (e, e')                               -> Printf.sprintf "%s %s"     (show' e) (show' e')
+  in show' expr
