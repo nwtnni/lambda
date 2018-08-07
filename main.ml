@@ -1,9 +1,14 @@
 let parse s = Parser.main Lexer.token (Lexing.from_string s)
 
+let rec step expr = expr
+|> Bruijn.from_lambda
+|> Bruijn.step
+|> Bruijn.to_lambda
+
 let eval expr = expr
-  |> Bruijn.from_lambda
-  |> Bruijn.eval
-  |> Bruijn.to_lambda
+|> Bruijn.from_lambda
+|> Bruijn.eval
+|> Bruijn.to_lambda
 
 let apply f l =
   List.fold_left (fun a b -> Lambda.App (a, b)) f l

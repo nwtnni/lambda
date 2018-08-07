@@ -39,6 +39,8 @@ type term =
 
 type t = term * Context.t
 
+let lift f = fun ((term, context): t) -> (f term, context)
+
 let rec eq a b = match a, b with
 | Var x, Var y                 -> x = y
 | Abs (_, e), Abs (_, e')      -> eq e e'
@@ -54,14 +56,11 @@ let from_lambda expr =
   let context = Context.from_lambda expr in
   (from_lambda' context expr, context)
 
-let to_lambda (expr, context) =
-  let rec to_lambda' context expr : Lambda.t = match expr with
-  | Var x       -> Var (Context.name x context)
-  | Abs (x, e)  -> let x' = Context.unique x context in
-                   Abs (x', to_lambda' (Context.push x' context) e)
-  | App (e, e') -> App (to_lambda' context e, to_lambda' context e')
-  in
-  to_lambda' context expr
+let rec to_lambda (expr, context) : Lambda.t = match expr with
+| Var x       -> Var (Context.name x context)
+| Abs (x, e)  -> let x' = Context.unique x context in
+                 Abs (x', to_lambda (e, Context.push x' context))
+| App (e, e') -> App (to_lambda (e, context), to_lambda (e', context))
 
 let show (expr, _) =
   let rec show' = function
@@ -74,7 +73,7 @@ let show (expr, _) =
   show' expr
 
 let walk cond map =
-  let rec walk' d = function 
+  let rec walk' d = function
   | Var x when cond x d -> map x d
   | Var x               -> Var x
   | Abs (x, e)          -> Abs (x, walk' (d + 1) e)
@@ -90,14 +89,15 @@ let substitute var expr =
   walk (fun x depth -> x = var + depth)
        (fun _ depth -> shift depth expr)
 
-let rec eval (expr, context) =
-  let rec eval' = function 
+let step =
+  let rec step' = function
   | App (Abs (x, e), e') -> shift (-1) (substitute 0 (shift 1 e') e)
-  | App (e, e') -> App (eval' e, eval' e')
-  | Abs (x, e) -> Abs (x, eval' e)
-  | e -> e
+  | App (e, e')          -> App (step' e, step' e')
+  | Abs (x, e)           -> Abs (x, step' e)
+  | e                    -> e
   in
-  let expr' = eval' expr in
-  if eq expr expr'
-  then (expr', context)
-  else eval (expr', context)
+  lift step'
+
+let rec eval expr =
+  let expr' = step expr in
+  if eq (fst expr) (fst expr') then expr' else eval expr'
