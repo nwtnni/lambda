@@ -8,7 +8,7 @@ module Context = struct
     name :: context
 
   let unique name context =
-    let regex = Str.regexp (name ^ "'*$") in
+    let regex = Str.regexp ("^" ^ name ^ "'*$") in
 
     let names = context
     |> List.filter (fun name -> Str.string_match regex name 0)
@@ -24,7 +24,7 @@ module Context = struct
 
   let index name =
     let rec index' n = function
-    | []                   -> failwith "Unreachable by construction of context"
+    | []                   -> failwith "Internal error: invalid naming context"
     | x :: t when x = name -> n
     | _ :: t               -> index' (n + 1) t
     in
