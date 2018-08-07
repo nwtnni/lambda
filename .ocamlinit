@@ -5,6 +5,7 @@
 #load "parser.cmo";;
 #load "lexer.cmo";;
 #load "main.cmo";;
+open Main;;
 
 let format_lambda fmt expr = Format.fprintf fmt "%s" (Lambda.show expr);;
 #install_printer format_lambda;;

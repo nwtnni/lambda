@@ -26,7 +26,7 @@ let rec church n = match n with
 | 0 -> zero
 | n -> apply succ [church (n - 1)]
 
-let add = parse "λm n s z. m s (n s z)"
+let add = apply (parse "λsucc m n. m succ n") [succ]
 let mul = apply (parse "λadd zero m n. m (add n) zero") [add; zero]
 let exp = apply (parse "λmul one m n. n (mul m) one") [mul; church 1]
 
@@ -35,3 +35,5 @@ let is_zero = apply (parse "λt f n. n (λanything. f) t") [t; f]
 let zz = apply (parse "λpair zero. pair zero zero") [pair; zero]
 let ss = apply (parse "λpair second add one p. pair (second p) (add one (second p))") [pair; second; add; church 1]
 let pred = apply (parse "λfirst ss zz n. first (n ss zz)") [first; ss; zz]
+
+let sub = apply (parse "λpred m n. n pred m") [pred]
