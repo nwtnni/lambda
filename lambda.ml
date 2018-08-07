@@ -16,5 +16,6 @@ let rec show = function
 | Abs (x, e)                                -> Printf.sprintf "λ%s. %s" x (show e)
 | App (Abs (_, _) as e, (Abs (_, _) as e')) -> Printf.sprintf "(%s) (%s)" (show e) (show e')
 | App (Abs (_, _) as e, e')                 -> Printf.sprintf "(%s) %s"   (show e) (show e')
+| App (e, (App (_, _) as e')) 
 | App (e, (Abs (_, _) as e'))               -> Printf.sprintf "%s (%s)"   (show e) (show e')
 | App (e, e')                               -> Printf.sprintf "%s %s"     (show e) (show e')
