@@ -1,5 +1,17 @@
+open Sexplib.Conv
+
 type 'a span = 'a * Span.t
 [@@deriving sexp]
+
+module Int = struct
+  type t = int span
+  [@@deriving sexp]
+end
+
+module Var = struct
+  type t = string span
+  [@@deriving sexp]
+end
 
 module rec Type : sig
   type pre_t =
@@ -19,17 +31,18 @@ end
 
 and Exp : sig 
   type pre_t =
-  | Int of int
+  | Int of Int.t
   | True
   | False
   | Unit
-  | Var of string
-  | Abs of string * Type.t * t
+  | Var of Var.t
+  | Abs of Var.t * Type.t * t
   | App of t * t
+  | If of t * t * t
   | Bin of Bin.t * t * t
   | Uno of Uno.t * t
   | Prod of t * t
-  | Proj of t * int
+  | Proj of t * Int.t
   | Inl of Type.t * t
   | Inr of Type.t * t
   | Case of t * t * t
@@ -47,8 +60,8 @@ and Bin : sig
   | Sub
   | Mul
   | Div
-  | And
-  | Or
+  | LAnd
+  | LOr
   | Lt
   | Le
   | Ge

@@ -23,3 +23,5 @@ type t = {
   l: position;
   r: position;
 } [@@deriving sexp]
+
+let merge s1 s2 = { l = s1.l; r = s2.r }
