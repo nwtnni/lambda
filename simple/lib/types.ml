@@ -42,7 +42,8 @@ and Exp : sig
   | Bin of Bin.t * t * t
   | Uno of Uno.t * t
   | Prod of t * t
-  | Proj of t * Int.t
+  | Pil of t
+  | Pir of t
   | Inl of Type.t * t
   | Inr of Type.t * t
   | Case of t * t * t
