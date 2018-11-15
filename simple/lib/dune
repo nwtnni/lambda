@@ -1,10 +1,3 @@
-(menhir
-  (flags --explain)
-  (modules parse))
-
-(ocamllex
-  (modules lex))
-
 (library
   (name simple)
   (libraries core)
