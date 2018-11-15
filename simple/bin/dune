@@ -1,0 +1,4 @@
+(executable
+  (name simplec)
+  (libraries core simple)  
+  (preprocess (pps ppx_jane)))
