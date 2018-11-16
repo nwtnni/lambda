@@ -54,4 +54,6 @@ rule token = parse
 | "if"           { IF(span lexbuf) }
 | "then"         { THEN(span lexbuf) }
 | "else"         { ELSE(span lexbuf) }
+| "let"          { LET(span lexbuf) }
+| "in"           { IN(span lexbuf) }
 | eof            { EOF(span lexbuf) }
