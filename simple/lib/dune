@@ -7,5 +7,4 @@
 
 (library
   (name simple)
-  (libraries core)
-  (preprocess (pps ppx_jane)))
+  (libraries core))
