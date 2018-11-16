@@ -14,7 +14,6 @@ let ws = [' ' '\t' '\r']
 rule token = parse
 | '\n'           { Lexing.new_line lexbuf; token lexbuf }
 | ws             { token lexbuf }
-| var as v       { VAR((v, span lexbuf)) }
 | int as n       { INT((int_of_string n, span lexbuf)) }
 | "int"          { INT_TYPE(span lexbuf) }
 | "bool"         { BOOL_TYPE(span lexbuf) }
@@ -39,7 +38,7 @@ rule token = parse
 | "."            { DOT(span lexbuf) }
 | ","            { COMMA(span lexbuf) }
 | ":"            { COLON(span lexbuf) }
-| "~"            { NOT(span lexbuf) }
+| "not"          { NOT(span lexbuf) }
 | "("            { LPAREN(span lexbuf) }
 | ")"            { RPAREN(span lexbuf) }
 | ".0"           { PIL(span lexbuf) }
@@ -56,4 +55,5 @@ rule token = parse
 | "else"         { ELSE(span lexbuf) }
 | "let"          { LET(span lexbuf) }
 | "in"           { IN(span lexbuf) }
+| var as v       { VAR((v, span lexbuf)) }
 | eof            { EOF(span lexbuf) }

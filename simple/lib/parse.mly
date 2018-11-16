@@ -50,6 +50,7 @@ typ:
 | prim_typ TO typ       { (Type.Fun($1, $3), Span.merge (span $1) (span $3)) }
 | prim_typ MUL prim_typ { (Type.Prod($1, $3), Span.merge (span $1) (span $3)) }
 | prim_typ ADD prim_typ { (Type.Sum($1, $3), Span.merge (span $1) (span $3)) }
+| prim_typ              { $1 }
 
 prim_typ:
 | INT_TYPE          { (Type.Int, $1) }
@@ -58,18 +59,19 @@ prim_typ:
 | LPAREN typ RPAREN { (node $2, Span.merge $1 $3) }
 
 exp:
-| IF exp THEN exp ELSE exp     { (Exp.If($2, $4, $6), Span.merge $1 (span $6)) }
-| LPAREN exp COMMA exp RPAREN  { (Exp.Prod($2, $4), Span.merge $1 $5) }
-| LAMBDA VAR COLON typ DOT exp { (Exp.Abs($2, $4, $6), Span.merge $1 (span $6)) }
-| CASE exp OF exp OR exp      { (Exp.Case($2, $4, $6), Span.merge $1 (span $6)) }
-| LET VAR EQ exp IN exp       { (Exp.Let($2, $4, $6), Span.merge $1 (span $6)) }
-| exp binop exp               { (Exp.Bin($2, $1, $3), Span.merge (span $1) (span $3)) }
-| exp PIL                     { (Exp.Pil($1), Span.merge (span $1) $2) }
-| exp PIR                     { (Exp.Pir($1), Span.merge (span $1) $2) }
-| INL LBRACE typ RBRACE value { (Exp.Inl($3, $5), Span.merge $1 (span $5)) }
-| INR LBRACE typ RBRACE value { (Exp.Inr($3, $5), Span.merge $1 (span $5)) }
-| unop exp                    { (Exp.Uno($1, $2), Span.merge (span $1) (span $2)) }
-| value                       { $1 }
+| IF exp THEN exp ELSE exp        { (Exp.If($2, $4, $6), Span.merge $1 (span $6)) }
+| LPAREN exp COMMA exp RPAREN     { (Exp.Prod($2, $4), Span.merge $1 $5) }
+| LAMBDA VAR COLON typ DOT exp    { (Exp.Abs($2, $4, $6), Span.merge $1 (span $6)) }
+| LET VAR EQ exp IN exp           { (Exp.Let($2, None, $4, $6), Span.merge $1 (span $6)) }
+| LET VAR COLON typ EQ exp IN exp { (Exp.Let($2, Some($4), $6, $8), Span.merge $1 (span $8)) }
+| CASE exp OF exp OR exp          { (Exp.Case($2, $4, $6), Span.merge $1 (span $6)) }
+| exp binop exp                   { (Exp.Bin($2, $1, $3), Span.merge (span $1) (span $3)) }
+| exp PIL                         { (Exp.Pil($1), Span.merge (span $1) $2) }
+| exp PIR                         { (Exp.Pir($1), Span.merge (span $1) $2) }
+| INL LBRACE typ RBRACE value     { (Exp.Inl($3, $5), Span.merge $1 (span $5)) }
+| INR LBRACE typ RBRACE value     { (Exp.Inr($3, $5), Span.merge $1 (span $5)) }
+| unop exp                        { (Exp.Uno($1, $2), Span.merge (span $1) (span $2)) }
+| value                           { $1 }
 
 %inline binop:
 | LT   { (Bin.Lt, $1) }
